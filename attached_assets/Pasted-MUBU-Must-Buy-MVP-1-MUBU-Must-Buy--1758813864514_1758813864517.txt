@@ -1,0 +1,542 @@
+MUBU (Must Buy) – 개발 기획 문서 (MVP 버전)
+1. 프로젝트 개요
+
+앱 이름: MUBU (Must Buy)
+
+목적: 해외여행 중 상품을 촬영하면 →
+① 상품/가격 인식 (Google Lens API + OCR)
+② 현지 통화 → KRW 자동 환산
+③ 한국 온라인 최저가(쿠팡/네이버/무신사)와 비교
+④ “득템 메시지”를 재미있게 출력
+⑤ 사용자가 구매 여부만 체크하면 절약 금액 누적 → “비행기값 벌기 챌린지”
+
+2. 핵심 기능 정의 (MVP)
+
+상품 이미지 인식
+
+Google Vision API / Lens API → 상품명, 브랜드 추출
+
+OCR(Tesseract.js or Google Vision OCR) → 가격 숫자 추출
+
+환율 변환
+
+API: Open Exchange Rates
+ or CurrencyLayer
+
+기능: 현지 통화 → KRW 변환
+
+가격 비교
+
+한국 가격 비교:
+
+네이버 쇼핑 API (상품명 기준 최저가 검색)
+
+쿠팡 Partners API (제휴 가능 시)
+
+무신사 API (없으면 크롤링 or 추후 연동)
+
+결과: 현지 가격 vs 한국 가격 비교 후 차액 계산
+
+UX 메시지 출력
+
+조건 분기:
+
+현지 가격 ≪ 한국 → "다쓸어담어!!! 🛒🔥"
+
+거의 동일 → "굳이 이걸 여기서? 🤔"
+
+한국이 더 저렴 → "여행에 충실해라... 🏖️"
+
+소비 기록 기능
+
+[샀다] 버튼 누르면 절약 금액 누적 저장
+
+Firebase/Supabase DB에 사용자별 저장
+
+대시보드: “총 절약 금액” + “비행기값 벌기 챌린지 게이지”
+
+3. 기술 스택
+
+Frontend: React (Replit → PWA 형태 배포 가능)
+
+Backend: Node.js + Express (API 호출, DB 연동)
+
+DB: Firebase or Supabase (사용자 로그인/기록 저장)
+
+배포: Replit → Vercel/Netlify 연결
+
+4. API 구조 설계
+📸 상품 인식 API
+POST /api/recognize
+Body: { image }
+Return: { productName, localPrice }
+
+💱 환율 변환 API
+GET /api/convert?amount=100&from=THB&to=KRW
+Return: { convertedPrice }
+
+🛒 한국 가격 비교 API
+GET /api/compare?productName=나이키+운동화
+Return: { lowestPrice: 25000, source: "네이버" }
+
+📊 절약 기록 저장 API
+POST /api/save
+Body: { userId, productName, localPrice, koreanPrice, savedAmount }
+Return: { success: true }
+
+5. UI 플로우 (간단 Mockup)
+
+홈 화면
+
+카메라 버튼 [상품 촬영]
+
+결과 화면
+
+상품명, 현지 가격, 한국 가격
+
+환율 반영 결과
+
+메시지 출력 (득템/굳이/충실)
+
+[샀다] 버튼 → 기록 저장
+
+대시보드 화면
+
+총 절약 금액
+
+“비행기값 벌기” 챌린지 게이지
+
+6. 마케팅/확산 전략
+
+한국 outbound 여행객 (태국, 일본, 베트남, 대만) 1차 타겟
+
+인스타 릴스, 유튜브 쇼츠에 “실시간 가격 비교 영상” 제작
+
+여행 유튜버 / 인스타 여행 인플루언서와 협업 체험단
+
+공항/여행사 제휴 홍보
+
+7. 향후 확장 아이디어
+
+지도 기반 최저가 큐레이션 (“방콕 MBK vs 치앙마이 시장 가격 비교”)
+
+외국인 관광객을 위한 Inbound 버전 (한국 쇼핑 비교 앱)
+
+글로벌 확장: 일본, 태국, 베트남 → 쇼핑 여행 강국
+
+8. 바로 실행 플로우
+
+Step 1: MVP (상품 인식 + 환율 + 한국 가격 비교 + 메시지 출력 + 소비 기록)
+
+Step 2: 지도/큐레이션/소셜 기능 추가
+
+Step 3: Inbound 버전(한국을 찾는 외국인용)
+
+👉 이 기획 문서를 Replit 개발자에게 넘기면 바로 코드 구조 잡고 API 호출 연동 작업 들어갈 수 있습니다.
+
+혹시 제가 **Replit용 기본 프로젝트 구조 코드 (React + Node.js + Express 뼈대)**를 바로 짜드릴까요?
+
+나의 말:
+그래 그것도 해줘
+ChatGPT의 말:
+17s 동안 생각함
+
+끝내줍니다. Replit에서 바로 돌릴 수 있는 **MUBU MVP 풀스택 보일러플레이트(React + Vite / Node + Express)**를 만들어 압축했습니다.
+
+Download the project (mubu-mvp.zip)
+
+포함 내용
+
+client/: Vite 기반 React PWA
+
+src/components/CameraCapture.jsx — 촬영/업로드 → 백엔드 연계(인식→환율→가격비교)
+
+src/components/PriceCard.jsx — 결과 카드 + “샀다 ✅” 저장
+
+src/pages/App.jsx, Dashboard.jsx — 홈/챌린지 대시보드
+
+src/lib/api.js — 백엔드 베이스URL 관리 (VITE_API_BASE 지원)
+
+server/: Express API
+
+/api/recognize (이미지 인식, 모킹)
+
+/api/convert (환율 변환, 모킹 / OXR 연동 자리)
+
+/api/compare (네이버 쇼핑 연동 자리, 모킹 기본값 제공)
+
+/api/save & /api/stats (데모용 인메모리 저장)
+
+services/recognize.js, exchange.js, compare.js — 실제 API로 교체하기 쉬운 모듈 구조
+
+.env.example — 키 채우면 실연동 가능
+
+shared/messages.js: 절약액에 따른 캐치프레이즈 로직(“다쓸어담어!!! / 굳이… / 여행에 충실해라…”)
+
+Replit 실행 방법
+
+Replit에 ZIP 업로드 후 압축 해제
+
+Shell 1:
+
+cd server
+npm install
+npm run dev
+# runs at http://localhost:3000
+
+
+Shell 2:
+
+cd client
+npm install
+npm run dev
+# runs at http://localhost:5173
+
+실서비스 연동 가이드 (파일 위치)
+
+상품 인식(Google Vision/Lens): server/services/recognize.js
+
+현재는 스텁 반환(나이키 예시). Vision OCR/Label Detection으로 교체
+
+환율(Open Exchange Rates 등): server/services/exchange.js
+
+.env에 OPEN_EXCHANGE_RATES_KEY 세팅 시 실제 환율 사용
+
+한국 최저가(네이버/쿠팡): server/services/compare.js
+
+.env에 NAVER_CLIENT_ID, NAVER_CLIENT_SECRET 세팅 → 네이버 쇼핑 오픈API 연동
+
+쿠팡 파트너스는 추후 보완(주석 위치 참고)
+
+다음 추천 액션
+
+Vision/환율/네이버 키 확보 → .env 설정
+
+recognize.js에서 상품명 + 금액 OCR 실제화
+
+compare.js에 예외 상황 처리(검색 결과 없음, 해외 모델명 매칭) 추가
+
+PWA 아이콘/스플래시에 무부 로고 교체 (오늘 만든 오렌지 쇼핑백 버전 👍)
+
+원하는 대로 API 키 넣고 바로 붙이면 됩니다. 필요하면 위 보일러플레이트에 맞춰 실제 Vision/환율/네이버 연동 코드도 바로 박아드릴게요. 
+
+나의 말:
+그래 같이 해줘
+ChatGPT의 말:
+10s 동안 생각함
+
+좋아, 이제 **실연동(구글 비전 OCR/라벨 + Open Exchange Rates + 네이버 쇼핑)**까지 붙여서 바로 돌릴 수 있게 만들어줄게. 아래 순서대로 복사-붙여넣기 하면 끝.
+
+0) 의존성 설치
+# server
+cd server
+npm i @google-cloud/vision axios dotenv express cors multer
+
+1) 환경변수(.env) 세팅
+
+server/.env에 아래 추가/수정
+
+PORT=3000
+
+# Google Vision (서비스 계정 키 JSON을 Base64로 넣는 방식 권장)
+GOOGLE_CREDENTIALS_BASE64=PASTE_BASE64_OF_SERVICE_ACCOUNT_JSON
+
+# Open Exchange Rates
+OPEN_EXCHANGE_RATES_KEY=YOUR_OXR_KEY
+
+# Naver Shopping
+NAVER_CLIENT_ID=YOUR_NAVER_ID
+NAVER_CLIENT_SECRET=YOUR_NAVER_SECRET
+
+
+✅ 서비스 계정 JSON Base64 만드는 법
+
+base64 -w 0 your-service-account.json > creds.b64
+# creds.b64의 내용을 GOOGLE_CREDENTIALS_BASE64에 그대로 붙여넣기
+
+2) Google Vision 연동 – server/services/recognize.js 교체
+
+아래 전체를 파일에 그대로 붙여넣기:
+
+// server/services/recognize.js
+import vision from '@google-cloud/vision';
+import fs from 'fs';
+import path from 'path';
+
+// ── Credentials from env (BASE64 JSON) ─────────────────────────────────────────
+function getVisionClient() {
+  const b64 = process.env.GOOGLE_CREDENTIALS_BASE64;
+  if (!b64) {
+    // Fallback: mock for dev without key
+    return null;
+  }
+  const json = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+  return new vision.ImageAnnotatorClient({ credentials: json });
+}
+
+// ── Currency detection helpers ─────────────────────────────────────────────────
+const CURRENCY_FROM_SYMBOL = [
+  { sym: '฿', code: 'THB' },
+  { sym: '¥', code: 'JPY' }, // 일본
+  { sym: '円', code: 'JPY' },
+  { sym: '₫', code: 'VND' },
+  { sym: '$', code: 'USD' },
+  { sym: '₩', code: 'KRW' },
+  { sym: '€', code: 'EUR' },
+  { sym: '₱', code: 'PHP' }
+];
+
+function detectCurrency(text) {
+  for (const { sym, code } of CURRENCY_FROM_SYMBOL) {
+    if (text.includes(sym)) return code;
+  }
+  // 심볼이 없으면 지역(사용자 설정)로 추정하거나, 프런트에서 선택받도록:
+  return null;
+}
+
+function extractNumericPrice(text) {
+  // 가장 그럴듯한 금액 하나 뽑기 (천단위 콤마/소수점 허용)
+  // 예: 1,290 / 1290.00 / 1.290,00 (유럽형은 후처리 고려)
+  const cand = [...text.matchAll(/(?<![A-Za-z])(\d{1,3}(?:[,\.\s]\d{3})+|\d+)(?:[.,]\d{2})?/g)]
+    .map(m => m[0]);
+  if (!cand.length) return null;
+
+  // 콤마/점 정규화: "1,290" -> 1290 / "1.290" -> 1290 (보수적)
+  const normalize = s => {
+    // 우선 천단위 구분자를 제거하고, 소수점은 버림
+    const onlyDigits = s.replace(/[^\d]/g, '');
+    return parseFloat(onlyDigits);
+  };
+  // 가장 길고 큰 수(가격일 가능성↑) 선택
+  const nums = cand.map(c => ({ raw: c, val: normalize(c) }))
+                   .filter(x => !Number.isNaN(x.val))
+                   .sort((a,b)=> b.val - a.val);
+  return nums[0]?.val ?? null;
+}
+
+// ── Main: recognize from image ────────────────────────────────────────────────
+export async function recognizeFromImage(filePath) {
+  const client = getVisionClient();
+  if (!client) {
+    // 키 없으면 모킹
+    return {
+      productName: 'Sample Product',
+      localPrice: 200,
+      currency: 'THB',
+      ocrText: '฿200 Nike T-shirt'
+    };
+  }
+
+  const [textRes] = await client.textDetection(filePath);
+  const [labelRes] = await client.labelDetection(filePath);
+
+  const ocrText = (textRes.fullTextAnnotation?.text || '').trim();
+  const labels = (labelRes.labelAnnotations || []).map(l => l.description);
+
+  // 후보 상품명: 라벨 + OCR에서 대문자/단어 조합 뽑기
+  let productName = labels.slice(0, 1)[0] || 'Unknown Item';
+  // 브랜드나 제품명 단서가 OCR에 있으면 보강
+  const brandMatch = ocrText.match(/\b(Nike|Adidas|Uniqlo|Apple|Samsung|Sony|Gucci|Muji|Zara|H&M)\b/i);
+  if (brandMatch) productName = `${brandMatch[0]} ${productName}`.trim();
+
+  // 통화/가격 추출
+  const currency = detectCurrency(ocrText) || 'THB'; // 기본값 THB (태국 MVP)
+  const localPrice = extractNumericPrice(ocrText) ?? 0;
+
+  // 임시 파일 삭제(멀터가 temp에 둘 때만)
+  try { fs.unlinkSync(path.resolve(filePath)); } catch {}
+
+  return { productName, localPrice, currency, ocrText };
+}
+
+3) Open Exchange Rates 연동 – server/services/exchange.js 교체
+// server/services/exchange.js
+import axios from 'axios';
+
+let cache = { ts: 0, rates: null };
+
+export async function convert(amount, from, to) {
+  const key = process.env.OPEN_EXCHANGE_RATES_KEY;
+  if (!key) {
+    // 키 없으면 안전한 모킹
+    const mockRates = { THB: 38, JPY: 9.5, USD: 1350, KRW: 1, VND: 0.055 };
+    const rate = (mockRates[from] && to === 'KRW')
+      ? mockRates[from]
+      : (from === 'USD' && mockRates['USD']) ? mockRates['USD'] : 1000;
+    return { convertedPrice: Math.round(amount * rate) };
+  }
+
+  const now = Date.now();
+  if (!cache.rates || now - cache.ts > 1000 * 60 * 15) { // 15분 캐시
+    const url = `https://openexchangerates.org/api/latest.json?app_id=${key}`;
+    const { data } = await axios.get(url);
+    cache = { ts: now, rates: data.rates };
+  }
+
+  const rates = cache.rates;
+  if (!rates[from] || !rates[to]) {
+    throw new Error(`Unsupported currency: ${from} or ${to}`);
+  }
+
+  // OXR은 기준 USD
+  const amountUSD = amount / rates[from];
+  const converted = amountUSD * rates[to];
+  return { convertedPrice: Math.round(converted) };
+}
+
+4) 네이버 쇼핑 연동 – server/services/compare.js 교체
+// server/services/compare.js
+import axios from 'axios';
+
+export async function compareKR(productName) {
+  const id = process.env.NAVER_CLIENT_ID;
+  const secret = process.env.NAVER_CLIENT_SECRET;
+
+  if (!id || !secret) {
+    // 키 없으면 모킹(프런트 링크는 검색 페이지로)
+    return {
+      lowestPrice: 24900,
+      source: 'Mock(Naver)',
+      url: 'https://search.shopping.naver.com/search/all?query=' + encodeURIComponent(productName)
+    };
+  }
+
+  const url = 'https://openapi.naver.com/v1/search/shop.json?display=10&sort=asc&query=' + encodeURIComponent(productName);
+  const { data } = await axios.get(url, {
+    headers: {
+      'X-Naver-Client-Id': id,
+      'X-Naver-Client-Secret': secret
+    }
+  });
+
+  const items = data.items || [];
+  if (!items.length) {
+    return {
+      lowestPrice: null,
+      source: 'Naver',
+      url: 'https://search.shopping.naver.com/search/all?query=' + encodeURIComponent(productName)
+    };
+  }
+
+  // 최저가 산출
+  let min = Number.MAX_SAFE_INTEGER;
+  let best = null;
+  for (const it of items) {
+    const price = parseInt(it.lprice, 10);
+    if (!Number.isNaN(price) && price < min) {
+      min = price;
+      best = it;
+    }
+  }
+
+  if (min === Number.MAX_SAFE_INTEGER) {
+    return {
+      lowestPrice: null,
+      source: 'Naver',
+      url: 'https://search.shopping.naver.com/search/all?query=' + encodeURIComponent(productName)
+    };
+  }
+
+  return {
+    lowestPrice: min,
+    source: 'Naver',
+    url: best?.link || 'https://search.shopping.naver.com/search/all?query=' + encodeURIComponent(productName)
+  };
+}
+
+5) 라우트는 그대로 사용 (이미 준비됨)
+
+server/routes/index.js는 이전 보일러와 호환됩니다. 이미지 업로드 → /api/recognize → 환율 /api/convert → 비교 /api/compare 순으로 프런트가 호출합니다.
+
+6) 빠른 점검용 cURL
+(1) 환율
+curl "http://localhost:3000/api/convert?amount=200&from=THB&to=KRW"
+
+(2) 가격 비교
+curl "http://localhost:3000/api/compare?productName=Nike%20Air%20Zoom%20Pegasus%2040"
+
+(3) 이미지 인식 (예시 JPG 경로 교체)
+curl -F "image=@/path/to/sample.jpg" http://localhost:3000/api/recognize
+
+7) 프런트에서 통화 보정(선택)
+
+해외에서 현지 심볼이 안찍히는 영수증/가격표가 있을 수 있어. 그런 경우를 대비해, CameraCapture.jsx에서 Vision이 통화를 못잡으면 사용자 지역 선택(THB/JPY/VND 등) 드롭다운을 한 번 띄우는 UX를 추가해도 좋아. (필요하면 바로 코드 추가해줄게)
+
+8) 운영 팁
+
+Vision 호출은 유료 과금이므로 **필요 최소(1회)**로만 호출 & 썸네일 업로드 권장
+
+OXR는 15분 캐시로 트래픽 절감(이미 코드 반영)
+
+네이버 제한(초당/일간) 대비해서 프런트에 디바운스 적용 또는 백엔드에 간단 캐시 추가 가능
+
+모델명 매칭이 애매하면 OCR 텍스트에서 브랜드 + 상위 1~2개 라벨만 조합하여 검색 쿼리 생성(이미 반영)
+
+원하면 서비스 계정 JSON을 base64로 만드는 법, Replit 시크릿 환경변수 세팅 스크린샷 가이드, 프런트에서 통화 수동 선택 추가까지 이어서 해줄게. 계속 진행할까?
+
+나의 말:
+어 좋아 최대한 다 반영해 줘 Replit 에서는 최소로 작업을 할 수 있게
+ChatGPT의 말:
+13s 동안 생각함
+
+완료! Replit에서 최소 작업으로 바로 돌릴 수 있도록 모든 걸 반영해 새 패키지를 준비했어.
+
+Download the Replit-ready project (mubu-mvp-replit-ready.zip)
+
+이번 패키지에 추가/개선된 것
+
+원클릭 실행: 루트에 .replit + run.sh → ▶️ Run 딱 한 번으로 서버+클라이언트 동시 실행
+
+통화 미검출 대비 UI: 카메라 업로드 후 통화 못 잡으면 드롭다운으로 통화 선택(THB/JPY/VND/USD/KRW/EUR)
+
+네이버 최저가 결과 캐시: 백엔드에 10분 캐시(과금/쿼터 절약)
+
+Replit Secrets 가이드: README에 환경변수(Secrets) 설정 방법과 Base64 자격증명 절차 포함
+
+Replit에서 하는 일 (진짜 최소)
+
+새 Repl 만들고 위 ZIP 업로드 → 자동 압축해제
+
+좌측 Secrets(자물쇠)에서 아래 4개 등록
+
+GOOGLE_CREDENTIALS_BASE64 : 서비스계정 JSON base64 (로컬에서 base64 -w 0 your.json)
+
+OPEN_EXCHANGE_RATES_KEY : OXR 키
+
+NAVER_CLIENT_ID, NAVER_CLIENT_SECRET
+
+▶️ Run 버튼만 클릭
+
+프론트: 5173 포트, 백엔드: 3000 포트(자동 프록시)
+
+앱에서 사진 업로드 → 인식 → 환율 반영 → 네이버 최저가 비교 → 메시지 출력 → ‘샀다’ 기록까지 동작
+
+파일 위치 요약
+
+백엔드
+
+server/services/recognize.js — Google Vision OCR/Label (Base64 크리덴셜 사용)
+
+server/services/exchange.js — Open Exchange Rates(15분 캐시)
+
+server/services/compare.js — 네이버 쇼핑(10분 캐시)
+
+server/routes/index.js — /api/recognize|convert|compare|save|stats
+
+프론트
+
+client/src/components/CameraCapture.jsx — 파일 업로드 & 통화 fallback UI
+
+client/src/components/PriceCard.jsx — 결과 카드 + “샀다 ✅”
+
+client/src/pages/Dashboard.jsx — “비행기값 벌기” 누적 표시
+
+운영 팁 (그대로 반영됨)
+
+Vision/OXR/네이버 모두 캐시/모킹 처리 → 키 없을 때도 UI 개발 가능
+
+실제 배포 전에는 recognize.js의 상품명 보강 로직(브랜드+라벨)만 살짝 튜닝하면 정확도↑
+
+아이콘/스플래시는 client/manifest.webmanifest에 무부 로고 추가만 하면 끝
+
+필요하면 지금 ZIP 안의 실연동 코드 일부를 더 튜닝(예: 일본/베트남 대상 브랜드 키워드, 통화 자동 추정 강화, 가격 포맷 국제화)해줄게. 어느 국가부터 필드 테스트 들어갈지 알려주면 해당 국가 맞춤 프리셋(통화/브랜드/카테고리)도 바로 얹어줄게.

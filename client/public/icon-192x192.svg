@@ -1,0 +1,13 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="24" fill="#ff6b35"/>
+  <!-- Shopping bag with smile -->
+  <path d="M48 72h96l-8 80H56l-8-80z" fill="white" stroke="white" stroke-width="2"/>
+  <path d="M64 72V56c0-8 8-16 16-16h32c8 0 16 8 16 16v16" stroke="white" stroke-width="3" fill="none"/>
+  <circle cx="88" cy="96" r="3" fill="#ff6b35"/>
+  <circle cx="104" cy="96" r="3" fill="#ff6b35"/>
+  <path d="M82 112c2 4 6 6 10 6s8-2 10-6" stroke="#ff6b35" stroke-width="2" stroke-linecap="round"/>
+  <!-- Magnifying glass -->
+  <circle cx="144" cy="128" r="12" fill="none" stroke="#ff6b35" stroke-width="3"/>
+  <path d="M154 138l6 6" stroke="#ff6b35" stroke-width="3" stroke-linecap="round"/>
+  <path d="M140 124l8 8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+</svg>
